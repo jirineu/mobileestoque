@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Estoque App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="app-title">Estoque App</h1>
+            <div class="user-info" id="userInfo">
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </header>
+
+        <nav class="side-menu" id="sideMenu">
+            <button class="close-menu" id="closeMenu">
+                <i class="fas fa-times"></i>
+            </button>
+            <ul>
+                <li><a href="#home" class="menu-item active">Início</a></li>
+                <li><a href="#vendas" class="menu-item">Vendas</a></li>
+                <li><a href="#estoque" class="menu-item">Visualizar Estoque</a></li>
+                <li><a href="#gerenciarProdutos" class="menu-item">Gerenciar Produtos</a></li>
+                <li><a href="#addProduto" class="menu-item">Adicionar Produto</a></li>
+                <li><a href="#historico" class="menu-item">Histórico</a></li>
+                <li class="admin-only"><a href="#inventario" class="menu-item">Inventário</a></li>
+                <li class="admin-only"><a href="#gerenciarUsuarios" class="menu-item">Gerenciar Usuários</a></li>
+                <li><a href="#" id="logoutBtn" class="menu-item">Sair</a></li>
+            </ul>
+        </nav>
+
+        <main class="app-content" id="appContent">
+            
+            <div id="login-page" class="page active">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <input type="text" id="loginUsername" placeholder="Usuário" required>
+                    <input type="password" id="loginPassword" placeholder="Senha" required>
+                    <button type="submit" class="btn primary-btn">Entrar</button>
+                </form>
+                <p>Não tem conta? <a href="#cadastro" id="switchToRegister">Cadastre-se</a></p>
+            </div>
+
+            <div id="cadastro-page" class="page hidden">
+                <h2>Cadastro</h2>
+                <form id="registerForm">
+                    <input type="text" id="registerUsername" placeholder="Usuário" required>
+                    <input type="password" id="registerPassword" placeholder="Senha" required>
+                    <button type="submit" class="btn primary-btn">Registrar</button>
+                </form>
+                <p>Já tem conta? <a href="#login" id="switchToLogin">Fazer Login</a></p>
+            </div>
+
+            <div id="home-page" class="page hidden">
+                <h2>Bem-vindo!</h2>
+                <p>Use o menu para navegar entre as opções.</p>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <i class="fas fa-cart-plus"></i>
+                        <h3><a href="#vendas">Nova Venda</a></h3>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-box"></i>
+                        <h3><a href="#estoque">Ver Estoque</a></h3>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-history"></i>
+                        <h3><a href="#historico">Histórico</a></h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="vendas-page" class="page hidden">
+                <h2>Registrar Venda</h2>
+                
+                <label for="customerNameInput">Nome do Cliente:</label>
+                <input type="text" id="customerNameInput" placeholder="Nome do Cliente" required>
+
+                <div class="card item-selector-card mt-2">
+                    <h3>Adicionar Item à Venda</h3>
+                    <form id="addItemForm">
+                        <label for="produtoAddItem">Produto:</label>
+                        <select id="produtoAddItem" required>
+                            <option value="">Carregando produtos...</option>
+                        </select>
+
+                        <label for="quantidadeAddItem">Quantidade:</label>
+                        <input type="number" id="quantidadeAddItem" min="1" value="1" required>
+
+                        <button type="submit" class="btn primary-btn full-width mt-1"><i class="fas fa-plus"></i> Adicionar ao Carrinho</button>
+                    </form>
+                </div>
+
+                <div class="card cart-summary-card mt-3">
+                    <h3>Itens da Venda (<span id="cartCount">0</span>)</h3>
+                    
+                    <table class="data-table" id="cartTable">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qtd.</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartTableBody">
+                            <tr><td colspan="4" style="text-align:center; color: var(--text-light);">Nenhum item no carrinho.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="cart-total-footer">
+                        <p>Total Geral:</p>
+                        <p class="total-amount" id="grandTotal">R$ 0.00</p>
+                    </div>
+                    
+                    <button id="registerSaleBtn" class="btn primary-btn full-width mt-3" disabled>
+                        <i class="fas fa-receipt"></i> Concluir Venda
+                    </button>
+                </div>
+            </div>
+
+            <div id="estoque-page" class="page hidden">
+                <h2>Estoque Atual</h2>
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar produto..." id="searchEstoque">
+                    <button class="btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Qtd.</th>
+                            <th>Preço/Un.</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estoqueTableBody">
+                        </tbody>
+                </table>
+                
+                <div class="mt-3 button-group">
+                    <button id="btnEntrada" class="btn primary-btn half-width"><i class="fas fa-arrow-up"></i> Entrada (Adicionar)</button>
+                    <button id="btnSaida" class="btn danger-btn half-width"><i class="fas fa-arrow-down"></i> Saída (Perda/Dev)</button>
+                </div>
+
+                <div id="movimentacaoFormContainer" class="card mt-3 hidden">
+                    <h3><span id="movTitle">Registrar Movimentação</span></h3>
+                    <form id="movimentacaoForm">
+                        <input type="hidden" id="movType"> <label for="movProduto">Produto:</label>
+                        <select id="movProduto" required></select>
+                        
+                        <label for="movQuantidade">Quantidade:</label>
+                        <input type="number" id="movQuantidade" min="1" required>
+
+                        <button type="submit" class="btn primary-btn mt-2" id="movSubmitBtn"><i class="fas fa-save"></i> Registrar</button>
+                        <button type="button" class="btn small-btn danger-btn full-width mt-1" id="movCancelBtn">Cancelar</button>
+                    </form>
+                </div>
+                
+                <div id="edicaoFormContainer" class="card mt-3 hidden">
+                    <h3>Editar Produto: <span id="edicaoProductName"></span></h3>
+                    <form id="edicaoForm">
+                        <input type="hidden" id="editProductId">
+                        <label for="editProductName">Nome:</label>
+                        <input type="text" id="editProductName" required>
+                        
+                        <label for="editProductPrice">Preço de Venda (R$):</label>
+                        <input type="number" id="editProductPrice" step="0.01" min="0.01" required>
+
+                        <label for="editProductWeight">Peso (gramas - Opcional):</label>
+                        <input type="number" id="editProductWeight" min="0">
+                        
+                        <button type="submit" class="btn edit-btn mt-2"><i class="fas fa-save"></i> Salvar Edição</button>
+                        <button type="button" class="btn small-btn full-width mt-1" id="editCancelBtn">Cancelar Edição</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="gerenciarProdutos-page" class="page hidden">
+                <h2>Gerenciamento Total de Produtos</h2>
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar produto..." id="searchGerenciar">
+                    <button class="btn" id="searchGerenciarBtn"><i class="fas fa-search"></i></button>
+                </div>
+
+                <p style="font-size: 0.9em; color: var(--text-light); margin-top: 10px;">Clique em <i class="fas fa-edit"></i> para editar todas as informações, incluindo estoque.</p>
+                
+                <table class="data-table mt-2">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Qtd.</th>
+                            <th>Preço/Un.</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gerenciarProdutosTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div id="addProduto-page" class="page hidden">
+                <h2>Adicionar Novo Produto</h2>
+                <form id="addProdutoForm">
+                    <label for="newProductName">Nome do Produto:</label>
+                    <input type="text" id="newProductName" required>
+                    
+                    <label for="newProductInitialQty">Quantidade Inicial:</label>
+                    <input type="number" id="newProductInitialQty" min="0" value="0" required>
+                    
+                    <label for="newProductPrice">Preço de Venda (R$):</label>
+                    <input type="number" id="newProductPrice" step="0.01" min="0.01" required>
+
+                    <label for="newProductWeight">Peso (gramas - Opcional):</label>
+                    <input type="number" id="newProductWeight" min="0">
+
+                    <button type="submit" class="btn primary-btn mt-3"><i class="fas fa-save"></i> Cadastrar Produto</button>
+                </form>
+            </div>
+
+            <div id="historico-page" class="page hidden">
+                <h2>Histórico de Movimentações</h2>
+                <div class="filter-controls">
+                    <select id="filterHistorico">
+                        <option value="all">Todas</option>
+                        <option value="venda">Vendas</option>
+                        <option value="entrada">Entradas</option>
+                        <option value="saida">Saídas</option>
+                        <option value="inventario">Inventário</option>
+                    </select>
+                </div>
+                <ul class="history-list" id="historicoList">
+                    </ul>
+            </div>
+            
+            <div id="inventario-page" class="page hidden admin-only">
+                <h2>Inventário (Ajuste de Estoque)</h2>
+                <p>Funcionalidade para ajustar o estoque a uma contagem física exata (Master Only).</p>
+                <form id="inventarioForm">
+                    <label for="inventarioProduto">Produto:</label>
+                    <select id="inventarioProduto" required>
+                        <option value="">Selecione o produto</option>
+                    </select>
+
+                    <label for="inventarioContagem">Contagem Física Atual:</label>
+                    <input type="number" id="inventarioContagem" min="0" required>
+                    
+                    <button type="submit" class="btn primary-btn mt-3"><i class="fas fa-check-double"></i> Realizar Ajuste</button>
+                </form>
+            </div>
+
+            <div id="gerenciarUsuarios-page" class="page hidden admin-only">
+                <h2>Gestão de Usuários</h2>
+                <p>Criação e gerenciamento de permissões de usuários (Master Only).</p>
+                </div>
+            
+        </main>
+
+        <footer class="app-footer">
+            <a href="#vendas" class="nav-item active">
+                <i class="fas fa-cash-register"></i>
+                <span>Vendas</span>
+            </a>
+            <a href="#estoque" class="nav-item">
+                <i class="fas fa-boxes"></i>
+                <span>Estoque</span>
+            </a>
+            <a href="#historico" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </a>
+            <a href="#home" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

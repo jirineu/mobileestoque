@@ -1,0 +1,609 @@
+/* Variáveis CSS para cores e tamanhos */
+:root {
+    --bg-dark: #121212;
+    --bg-light-dark: #1c1c1c;
+    --primary-color: #4CAF50; /* Verde vibrante */
+    --primary-light: #6fbf73;
+    --text-color: #e0e0e0;
+    --text-light: #bdbdbd;
+    --border-color: #333;
+    --error-color: #f44336;
+    --success-color: #8bc34a;
+    --info-color: #2196f3;
+
+    --header-height: 60px;
+    --footer-height: 60px;
+    --max-width: 450px;
+}
+
+/* Base resets e mobile-first */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-y: scroll; 
+}
+
+/* Container principal da aplicação, limita a largura */
+.app-container {
+    background-color: var(--bg-light-dark);
+    max-width: var(--max-width);
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    position: relative; 
+    overflow: hidden; 
+}
+
+/* Header */
+.app-header {
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    padding: 0 15px;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    width: 100%;
+    max-width: var(--max-width);
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.app-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--primary-color);
+    flex-grow: 1; 
+    text-align: center;
+}
+
+.menu-toggle, .close-menu {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.user-info {
+    font-size: 1.4em;
+    color: var(--text-light);
+}
+
+/* Side Menu (Menu Hamburger) */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 70%; 
+    max-width: 250px;
+    height: 100%;
+    background-color: var(--bg-dark);
+    z-index: 1100;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+    border-right: 1px solid var(--border-color);
+    padding-top: var(--header-height); 
+}
+
+.side-menu.active {
+    transform: translateX(0);
+}
+
+.side-menu ul {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.side-menu li {
+    margin-bottom: 5px;
+}
+
+.side-menu a {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1.1em;
+    transition: background-color 0.2s;
+}
+
+.side-menu a:hover,
+.side-menu a.active {
+    background-color: var(--primary-color);
+    color: var(--bg-dark);
+}
+
+.close-menu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.8em;
+    color: var(--text-light);
+}
+
+/* Conteúdo principal */
+.app-content {
+    flex-grow: 1;
+    padding: calc(var(--header-height) + 15px) 15px calc(var(--footer-height) + 15px) 15px; 
+    overflow-y: auto; 
+}
+
+.page {
+    display: none;
+    padding-bottom: 20px; 
+}
+
+.page.active {
+    display: block;
+}
+
+.page h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.8em;
+}
+
+/* Forms e Inputs */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-weight: 500;
+    color: var(--text-light);
+    margin-bottom: -5px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: var(--primary-color);
+}
+
+p {
+    margin-top: 15px;
+    text-align: center;
+}
+
+p a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Botões */
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    /* Alteração para incluir transição de sombra */
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Sombra base */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4); 
+}
+
+/* Efeito de clique */
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4); 
+}
+
+.btn.primary-btn {
+    background-color: var(--primary-color);
+    color: var(--bg-dark);
+    /* Sombra brilhante primária */
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.4); 
+}
+
+.btn.primary-btn:hover {
+    background-color: var(--primary-light);
+    /* Intensifica a sombra ao passar o mouse */
+    box-shadow: 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+}
+
+.btn.danger-btn {
+    background-color: var(--error-color);
+    color: white;
+    /* Sombra brilhante de perigo */
+    box-shadow: 0 0 15px rgba(244, 67, 54, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.btn.danger-btn:hover {
+    background-color: #e53935;
+    /* Intensifica a sombra ao passar o mouse */
+    box-shadow: 0 0 20px var(--error-color), 0 0 30px var(--error-color);
+}
+
+.btn.small-btn {
+    padding: 8px 12px;
+    font-size: 0.85em;
+    border-radius: 5px;
+}
+
+.btn.edit-btn {
+    background-color: var(--info-color);
+    color: white;
+    /* Sombra brilhante de informação/edição */
+    box-shadow: 0 0 15px rgba(33, 150, 243, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.btn.edit-btn:hover {
+    background-color: #1e88e5;
+    /* Intensifica a sombra ao passar o mouse */
+    box-shadow: 0 0 20px var(--info-color), 0 0 30px var(--info-color);
+}
+
+.full-width {
+    width: 100%;
+}
+
+.mt-1 {
+    margin-top: 10px;
+}
+.mt-3 {
+    margin-top: 20px;
+}
+.mt-2 {
+    margin-top: 15px;
+}
+
+
+/* Footer de navegação */
+.app-footer {
+    background-color: var(--bg-dark);
+    height: var(--footer-height);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: var(--max-width);
+    z-index: 1000;
+    border-top: 1px solid var(--border-color);
+}
+
+.app-footer .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.8em;
+    flex: 1; 
+    padding: 5px 0;
+    transition: color 0.2s;
+}
+
+.app-footer .nav-item i {
+    font-size: 1.4em;
+    margin-bottom: 3px;
+}
+
+.app-footer .nav-item.active {
+    color: var(--primary-color);
+}
+
+.app-footer .nav-item:hover {
+    color: var(--primary-light);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.dashboard-card {
+    background-color: var(--bg-dark);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-card i {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.dashboard-card h3 {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.dashboard-card h3 a {
+    color: var(--text-color);
+    text-decoration: none;
+    display: block;
+}
+
+.dashboard-card h3 a:hover {
+    color: var(--primary-color);
+}
+
+
+/* Tabelas de Dados */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--bg-dark);
+    border-radius: 8px;
+    overflow: hidden; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.data-table th, .data-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background-color: var(--primary-color);
+    color: var(--bg-dark);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.data-table td {
+    color: var(--text-light);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: var(--bg-light-dark); 
+}
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-bar input {
+    flex-grow: 1;
+}
+
+/* History List */
+.history-list {
+    list-style: none;
+    margin-top: 20px;
+}
+
+.history-list li {
+    background-color: var(--bg-dark);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.history-list li span {
+    font-weight: 600;
+    margin-right: 10px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.8em;
+}
+
+.type-venda { background-color: var(--primary-color); color: var(--bg-dark); }
+.type-entrada { background-color: var(--info-color); color: white; }
+.type-saida { background-color: var(--error-color); color: white; }
+.type-inventario { background-color: #FFC107; color: var(--bg-dark); } 
+
+/* Mensagens de feedback (ex: sucesso, erro) */
+/* OBS: Estas classes (.message, .message.success, etc.) foram mantidas mas não são usadas no novo script */
+.message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.message.success {
+    background-color: var(--success-color);
+    color: var(--bg-dark);
+}
+
+.message.error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Esconder elementos para usuários comuns (JavaScript fará isso de forma mais robusta) */
+.admin-only {
+    /* Deixar display: none no CSS e remover no JS para Master */
+    display: none;
+}
+
+/* Sobreposição para quando o menu lateral está ativo */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    display: none;
+}
+.overlay.active {
+    display: block;
+}
+
+/* --- ESTILOS ESPECÍFICOS PARA OS CARDS/FORMULÁRIOS --- */
+
+.card {
+    background-color: var(--bg-dark);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.card.hidden {
+    display: none; /* Estilo para esconder os formulários de Estoque */
+}
+
+.card h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+/* Vendas */
+.item-selector-card form {
+    gap: 10px; 
+}
+
+.cart-summary-card .data-table {
+    margin-top: 15px;
+    box-shadow: none;
+}
+.cart-summary-card .data-table th, 
+.cart-summary-card .data-table td {
+    padding: 8px 5px; 
+    font-size: 0.9em;
+}
+.cart-summary-card .data-table th:last-child, 
+.cart-summary-card .data-table td:last-child {
+    text-align: right;
+    width: 1%; 
+}
+
+.cart-total-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-top: 10px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.cart-total-footer p:first-child {
+    font-weight: 500;
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.total-amount {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+/* Estoque - Grupo de Botões Entrada/Saída */
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+.half-width {
+    flex: 1;
+}
+
+/* --- TOAST NOTIFICATION STYLES (NOVO) --- */
+#toastContainer {
+    position: fixed;
+    top: 70px; /* Ajusta para ficar abaixo do cabeçalho fixo (header) + um pouco de margem */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000; /* Z-index alto para garantir que fique visível */
+    width: 90%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none; /* Permite clicar através do container */
+}
+
+.toast {
+    background-color: var(--primary-color, #007bff);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    /* Sombra discreta para destacar o toast */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); 
+    font-size: 14px;
+    opacity: 1;
+    /* Transição para aparecer/desaparecer */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    transform: translateY(0);
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateY(-20px); /* Move para cima ao desaparecer */
+}
+
+.toast.success {
+    background-color: var(--success-color, #4CAF50); 
+}
+
+.toast.error {
+    background-color: var(--error-color, #F44336); 
+}
+
+.toast.info {
+    background-color: var(--info-color, #2196F3); 
+}
