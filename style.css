@@ -35,30 +35,32 @@ body {
 
 /* Container principal da aplicação, limita a largura */
 .app-container {
-    background-color: var(--bg-light-dark);
-    max-width: var(--max-width);
     width: 100%;
-    min-height: 100vh;
+    max-width: var(--max-width);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    position: relative; 
-    overflow: hidden; 
+    min-height: 100vh;
+    padding-top: var(--header-height); /* Espaço para o header fixo */
+    padding-bottom: var(--footer-height); /* Espaço para o footer fixo */
+    background-color: var(--bg-dark);
 }
 
-/* Header */
+/* Cabeçalho Fixo */
 .app-header {
-    background-color: var(--bg-dark);
-    color: var(--text-color);
-    padding: 0 15px;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--max-width);
     height: var(--header-height);
+    background-color: var(--bg-light-dark);
+    color: var(--text-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: fixed;
-    width: 100%;
-    max-width: var(--max-width);
-    top: 0;
+    padding: 0 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     z-index: 1000;
     border-bottom: 1px solid var(--border-color);
 }
@@ -66,144 +68,111 @@ body {
 .app-title {
     font-size: 1.2em;
     font-weight: 600;
-    color: var(--primary-color);
-    flex-grow: 1; 
-    text-align: center;
 }
 
-.menu-toggle, .close-menu {
+.menu-toggle, .user-info {
+    font-size: 1.5em;
+    color: var(--text-color);
     background: none;
     border: none;
-    color: var(--text-color);
-    font-size: 1.5em;
     cursor: pointer;
     padding: 5px;
 }
 
-.user-info {
-    font-size: 1.4em;
-    color: var(--text-light);
-}
-
-/* Side Menu (Menu Hamburger) */
+/* Menu Lateral */
 .side-menu {
     position: fixed;
     top: 0;
     left: 0;
-    width: 70%; 
-    max-width: 250px;
+    width: 70%;
+    max-width: 300px;
     height: 100%;
-    background-color: var(--bg-dark);
-    z-index: 1100;
+    background-color: var(--bg-light-dark);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
     transform: translateX(-100%);
-    transition: transform 0.3s ease-out;
+    transition: transform 0.3s ease-in-out;
+    z-index: 1500;
+    padding-top: var(--header-height);
     border-right: 1px solid var(--border-color);
-    padding-top: var(--header-height); 
 }
 
 .side-menu.active {
     transform: translateX(0);
 }
 
-.side-menu ul {
-    list-style: none;
-    padding: 20px 0;
-}
-
-.side-menu li {
-    margin-bottom: 5px;
-}
-
-.side-menu a {
-    display: block;
-    padding: 12px 20px;
-    color: var(--text-color);
-    text-decoration: none;
-    font-size: 1.1em;
-    transition: background-color 0.2s;
-}
-
-.side-menu a:hover,
-.side-menu a.active {
-    background-color: var(--primary-color);
-    color: var(--bg-dark);
-}
-
 .close-menu {
     position: absolute;
     top: 15px;
     right: 15px;
-    font-size: 1.8em;
-    color: var(--text-light);
+    font-size: 1.5em;
+    color: var(--text-color);
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
-/* Conteúdo principal */
+.side-menu ul {
+    list-style: none;
+    padding: 10px 0;
+}
+
+.side-menu li a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: background-color 0.2s;
+}
+
+.side-menu li a:hover,
+.side-menu li a.active {
+    background-color: var(--border-color);
+    color: var(--primary-color);
+}
+
+/* Conteúdo Principal */
 .app-content {
     flex-grow: 1;
-    padding: calc(var(--header-height) + 15px) 15px calc(var(--footer-height) + 15px) 15px; 
-    overflow-y: auto; 
+    padding: 15px;
+    background-color: var(--bg-dark);
+    overflow-y: auto;
 }
 
 .page {
     display: none;
-    padding-bottom: 20px; 
+    padding-bottom: 20px; /* Garante que o último elemento não fique atrás do footer */
 }
 
 .page.active {
     display: block;
 }
 
-.page h2 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 1.8em;
-}
-
-/* Forms e Inputs */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-label {
-    font-weight: 500;
-    color: var(--text-light);
-    margin-bottom: -5px;
-}
-
+/* Formulários e Inputs */
 input[type="text"],
 input[type="password"],
 input[type="number"],
 select {
     width: 100%;
     padding: 12px;
+    margin-bottom: 15px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    background-color: var(--bg-dark);
+    background-color: var(--bg-light-dark);
     color: var(--text-color);
     font-size: 1em;
-    outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.3s;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus,
-select:focus {
+input:focus, select:focus {
+    outline: none;
     border-color: var(--primary-color);
 }
 
-p {
-    margin-top: 15px;
-    text-align: center;
-}
-
-p a {
-    color: var(--primary-color);
-    text-decoration: none;
+label {
+    display: block;
+    margin-bottom: 5px;
     font-weight: 500;
+    color: var(--text-light);
 }
 
 /* Botões */
@@ -212,94 +181,153 @@ p a {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1em;
     font-weight: 600;
-    /* Alteração para incluir transição de sombra */
-    transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    /* Sombra base */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4); 
+    text-align: center;
+    /* Sombra base e transição para o glow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s, opacity 0.3s, box-shadow 0.3s ease-in-out;
 }
 
-/* Efeito de clique */
-.btn:active {
-    transform: translateY(1px);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4); 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none; /* Remove o glow quando desabilitado */
 }
 
-.btn.primary-btn {
+/* GLOW EFFECT (Sombra Brilhante) */
+.primary-btn {
     background-color: var(--primary-color);
-    color: var(--bg-dark);
-    /* Sombra brilhante primária */
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.4); 
+    color: #fff;
+    /* Sombra brilhante verde */
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.7); 
 }
-
-.btn.primary-btn:hover {
+.primary-btn:hover:not(:disabled) {
     background-color: var(--primary-light);
-    /* Intensifica a sombra ao passar o mouse */
-    box-shadow: 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color); /* Glow mais intenso no hover */
 }
 
-.btn.danger-btn {
+.danger-btn {
     background-color: var(--error-color);
-    color: white;
-    /* Sombra brilhante de perigo */
-    box-shadow: 0 0 15px rgba(244, 67, 54, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    color: #fff;
+    /* Sombra brilhante vermelha */
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.7); 
+}
+.danger-btn:hover:not(:disabled) {
+    background-color: #d32f2f;
+    box-shadow: 0 0 15px var(--error-color); /* Glow mais intenso no hover */
 }
 
-.btn.danger-btn:hover {
-    background-color: #e53935;
-    /* Intensifica a sombra ao passar o mouse */
-    box-shadow: 0 0 20px var(--error-color), 0 0 30px var(--error-color);
-}
-
-.btn.small-btn {
-    padding: 8px 12px;
-    font-size: 0.85em;
-    border-radius: 5px;
-}
-
-.btn.edit-btn {
+.edit-btn {
     background-color: var(--info-color);
-    color: white;
-    /* Sombra brilhante de informação/edição */
-    box-shadow: 0 0 15px rgba(33, 150, 243, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    color: #fff;
+    /* Sombra brilhante azul */
+    box-shadow: 0 0 10px rgba(33, 150, 243, 0.7); 
 }
-.btn.edit-btn:hover {
-    background-color: #1e88e5;
-    /* Intensifica a sombra ao passar o mouse */
-    box-shadow: 0 0 20px var(--info-color), 0 0 30px var(--info-color);
+.edit-btn:hover:not(:disabled) {
+    background-color: #1976d2;
+    box-shadow: 0 0 15px var(--info-color); /* Glow mais intenso no hover */
 }
+/* FIM DO GLOW EFFECT */
 
 .full-width {
     width: 100%;
 }
 
-.mt-1 {
-    margin-top: 10px;
+.half-width {
+    width: 48%; /* Ajustado para funcionar com flexbox gap */
 }
-.mt-3 {
-    margin-top: 20px;
+
+.small-btn {
+    padding: 8px 10px;
+    font-size: 0.85em;
+    border-radius: 5px;
 }
-.mt-2 {
+
+/* Tabelas de Dados */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 15px;
+    background-color: var(--bg-light-dark);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
+.data-table th, .data-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
 
-/* Footer de navegação */
+.data-table th {
+    background-color: var(--border-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Utilitários de Margem */
+.mt-1 { margin-top: 10px; }
+.mt-2 { margin-top: 15px; }
+.mt-3 { margin-top: 25px; }
+.mb-1 { margin-bottom: 10px; }
+
+/* Dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.dashboard-card {
+    background-color: var(--bg-light-dark);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-top: 4px solid var(--primary-color);
+}
+
+.dashboard-card i {
+    font-size: 2em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.dashboard-card h3 a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.1em;
+}
+
+/* Componente Card */
+.card {
+    background-color: var(--bg-light-dark);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+}
+
+/* Footer de Navegação */
 .app-footer {
-    background-color: var(--bg-dark);
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--max-width);
     height: var(--footer-height);
+    background-color: var(--bg-light-dark);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    max-width: var(--max-width);
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
     z-index: 1000;
     border-top: 1px solid var(--border-color);
 }
@@ -308,13 +336,12 @@ p a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    color: var(--text-light);
     text-decoration: none;
-    font-size: 0.8em;
-    flex: 1; 
+    color: var(--text-light);
+    font-size: 0.75em;
     padding: 5px 0;
     transition: color 0.2s;
+    flex: 1;
 }
 
 .app-footer .nav-item i {
@@ -326,223 +353,63 @@ p a {
     color: var(--primary-color);
 }
 
-.app-footer .nav-item:hover {
-    color: var(--primary-light);
-}
-
-/* Dashboard Grid */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.dashboard-card {
-    background-color: var(--bg-dark);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-5px);
-}
-
-.dashboard-card i {
-    font-size: 2.5em;
-    color: var(--primary-color);
-    margin-bottom: 10px;
-}
-
-.dashboard-card h3 {
-    font-size: 1.1em;
-    margin: 0;
-}
-
-.dashboard-card h3 a {
-    color: var(--text-color);
-    text-decoration: none;
-    display: block;
-}
-
-.dashboard-card h3 a:hover {
-    color: var(--primary-color);
-}
-
-
-/* Tabelas de Dados */
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: var(--bg-dark);
-    border-radius: 8px;
-    overflow: hidden; 
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-.data-table th, .data-table td {
-    padding: 12px 10px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.data-table th {
-    background-color: var(--primary-color);
-    color: var(--bg-dark);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.9em;
-}
-
-.data-table td {
-    color: var(--text-light);
-}
-
-.data-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.data-table tbody tr:nth-child(even) {
-    background-color: var(--bg-light-dark); 
-}
-
-/* Search Bar */
+/* Search Bar (Estoque e Registro de Vendas) */
 .search-bar {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
 }
-
 .search-bar input {
     flex-grow: 1;
+    margin-bottom: 0;
+}
+.search-bar button {
+    width: 50px;
+    padding: 0;
+    font-size: 1em;
+    min-width: 50px;
+    /* Ajuste para o botão de busca, se for um .btn */
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); 
 }
 
-/* History List */
+/* Histórico/Registro de Vendas Lista */
 .history-list {
     list-style: none;
-    margin-top: 20px;
-}
-
-.history-list li {
-    background-color: var(--bg-dark);
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.95em;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.history-list li span {
-    font-weight: 600;
-    margin-right: 10px;
-    padding: 4px 8px;
-    border-radius: 5px;
-    font-size: 0.8em;
-}
-
-.type-venda { background-color: var(--primary-color); color: var(--bg-dark); }
-.type-entrada { background-color: var(--info-color); color: white; }
-.type-saida { background-color: var(--error-color); color: white; }
-.type-inventario { background-color: #FFC107; color: var(--bg-dark); } 
-
-/* Mensagens de feedback (ex: sucesso, erro) */
-/* OBS: Estas classes (.message, .message.success, etc.) foram mantidas mas não são usadas no novo script */
-.message {
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-weight: 500;
-}
-
-.message.success {
-    background-color: var(--success-color);
-    color: var(--bg-dark);
-}
-
-.message.error {
-    background-color: var(--error-color);
-    color: white;
-}
-
-/* Esconder elementos para usuários comuns (JavaScript fará isso de forma mais robusta) */
-.admin-only {
-    /* Deixar display: none no CSS e remover no JS para Master */
-    display: none;
-}
-
-/* Sobreposição para quando o menu lateral está ativo */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
-    display: none;
-}
-.overlay.active {
-    display: block;
-}
-
-/* --- ESTILOS ESPECÍFICOS PARA OS CARDS/FORMULÁRIOS --- */
-
-.card {
-    background-color: var(--bg-dark);
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-.card.hidden {
-    display: none; /* Estilo para esconder os formulários de Estoque */
-}
-
-.card h3 {
-    color: var(--primary-color);
-    margin-bottom: 15px;
-    font-size: 1.2em;
-}
-
-/* Vendas */
-.item-selector-card form {
-    gap: 10px; 
-}
-
-.cart-summary-card .data-table {
+    padding: 0;
     margin-top: 15px;
-    box-shadow: none;
-}
-.cart-summary-card .data-table th, 
-.cart-summary-card .data-table td {
-    padding: 8px 5px; 
-    font-size: 0.9em;
-}
-.cart-summary-card .data-table th:last-child, 
-.cart-summary-card .data-table td:last-child {
-    text-align: right;
-    width: 1%; 
 }
 
+.history-list-item {
+    margin-bottom: 10px;
+}
+
+.history-list-item .history-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.history-list-item .type-venda {
+    background-color: #ffc107;
+    color: #333;
+    font-weight: bold;
+}
+.type-badge {
+    color: white; /* Cor padrão alterada no JS para cores específicas */
+}
+
+.filter-controls {
+    margin-top: 15px; /* Adicionado um pouco de margem para separar da busca */
+    margin-bottom: 15px;
+}
+
+/* Cart Summary */
 .cart-total-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    margin-top: 10px;
-    border-top: 1px dashed var(--border-color);
-}
-
-.cart-total-footer p:first-child {
-    font-weight: 500;
-    margin: 0;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
     font-size: 1.1em;
 }
 
@@ -583,27 +450,7 @@ p a {
     padding: 10px 15px;
     border-radius: 8px;
     /* Sombra discreta para destacar o toast */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); 
-    font-size: 14px;
-    opacity: 1;
-    /* Transição para aparecer/desaparecer */
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-    transform: translateY(0);
-}
-
-.toast.hide {
-    opacity: 0;
-    transform: translateY(-20px); /* Move para cima ao desaparecer */
-}
-
-.toast.success {
-    background-color: var(--success-color, #4CAF50); 
-}
-
-.toast.error {
-    background-color: var(--error-color, #F44336); 
-}
-
-.toast.info {
-    background-color: var(--info-color, #2196F3); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); 
+    opacity: 0; /* Inicialmente transparente, o JS controla a visibilidade */
+    transition: opacity 0.5s ease-out;
 }

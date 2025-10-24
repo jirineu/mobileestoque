@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const switchToRegister = document.getElementById('switchToRegister');
     const switchToLogin = document.getElementById('switchToLogin');
 
-    // --- Elementos de Vendas (Atualizados) ---
+    // --- Elementos de Vendas ---
     const produtoAddItemSelect = document.getElementById('produtoAddItem');
     const quantidadeAddItemInput = document.getElementById('quantidadeAddItem');
     const addItemForm = document.getElementById('addItemForm');
@@ -74,14 +74,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSaida = document.getElementById('btnSaida');
     const searchEstoqueInput = document.getElementById('searchEstoque');
-    const searchEstoqueBtn = document.getElementById('searchEstoqueBtn');
     const movimentacaoFormContainer = document.getElementById('movimentacaoFormContainer');
     const movimentacaoForm = document.getElementById('movimentacaoForm');
     const movTitle = document.getElementById('movTitle');
     const movType = document.getElementById('movType');
-    const movProduto = document.getElementById('movProduto');
+    
+    // Elementos de Movimentação por Busca
+    const movSearchContainer = document.getElementById('movSearchContainer');
+    const movSearchInput = document.getElementById('movSearchInput');
+    const productListForMov = document.getElementById('productListForMov');
+    const searchMovProductBtn = document.getElementById('searchMovProductBtn');
+    const movProductDetails = document.getElementById('movProductDetails');
+    const movProductId = document.getElementById('movProductId');
+    const movProductNameDisplay = document.getElementById('movProductNameDisplay');
+    const movProductQtyDisplay = document.getElementById('movProductQtyDisplay');
     const movQuantidade = document.getElementById('movQuantidade');
     const movCancelBtn = document.getElementById('movCancelBtn');
+
+
+    // Elementos de Gerenciamento de Produtos (Search-based Edition)
+    const searchEditProductForm = document.getElementById('searchEditProductForm');
+    const searchEditProductInput = document.getElementById('searchEditProductInput');
+    const productListForEdit = document.getElementById('productListForEdit');
+    const gerenciarStatusMessage = document.getElementById('gerenciarStatusMessage');
     const edicaoFormContainer = document.getElementById('edicaoFormContainer');
     const edicaoForm = document.getElementById('edicaoForm');
     const edicaoProductName = document.getElementById('edicaoProductName');
@@ -90,18 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const editProductPriceInput = document.getElementById('editProductPrice');
     const editProductWeightInput = document.getElementById('editProductWeight');
     const editCancelBtn = document.getElementById('editCancelBtn');
-    
-    // --- Elementos de Gerenciamento de Produtos (NOVO) ---
-    const gerenciarProdutosTableBody = document.getElementById('gerenciarProdutosTableBody');
-    const searchGerenciarInput = document.getElementById('searchGerenciar');
-    const searchGerenciarBtn = document.getElementById('searchGerenciarBtn');
+    const btnDeleteProduct = document.getElementById('btnDeleteProduct'); // Novo botão de Excluir
 
 
     // --- Elementos de Outras Páginas ---
     const addProdutoForm = document.getElementById('addProdutoForm');
     const inventarioProdutoSelect = document.getElementById('inventarioProduto');
     const inventarioForm = document.getElementById('inventarioForm');
-    const historicoList = document.getElementById('historicoList'); 
+    const registroVendasList = document.getElementById('registroVendasList'); 
+    const searchRegistroVendasInput = document.getElementById('searchRegistroVendas'); // NOVO ELEMENTO
+    const estoqueHistoricoList = document.getElementById('estoqueHistoricoList'); 
+    const filterEstoqueHistoricoSelect = document.getElementById('filterEstoqueHistorico'); 
+
 
     // --- Elementos de Gerenciamento de Usuários (Master Only) ---
     const userTableBody = document.getElementById('userTableBody');
@@ -119,8 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Persistência (Simulação com localStorage) ---
     let users = JSON.parse(localStorage.getItem('users')) || {
-        'master': { password: '455596', role: 'master' },
-        'comum': { password: '123', role: 'user' }
+        'admin': { password: '455596', role: 'master' },
+        'user': { password: '123', role: 'user' }
     };
     const saveUsers = () => localStorage.setItem('users', JSON.stringify(users));
 
@@ -131,9 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     const saveProducts = () => localStorage.setItem('products', JSON.stringify(products));
 
-    // Histórico de Vendas
-    let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
-    const saveSalesHistory = () => localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+    // Registro de Vendas
+    let salesRegister = JSON.parse(localStorage.getItem('salesRegister')) || [];
+    const saveSalesRegister = () => localStorage.setItem('salesRegister', JSON.stringify(salesRegister));
+    
+    // Histórico de Estoque
+    let stockHistory = JSON.parse(localStorage.getItem('stockHistory')) || [];
+    const saveStockHistory = () => localStorage.setItem('stockHistory', JSON.stringify(stockHistory));
+
 
     // --- Core Navigation and UI Functions ---
 
@@ -159,8 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Limpa a busca ao trocar de página
             if (searchEstoqueInput) searchEstoqueInput.value = '';
-            if (searchGerenciarInput) searchGerenciarInput.value = '';
-
+            if (searchRegistroVendasInput) searchRegistroVendasInput.value = ''; // Limpa a busca de vendas
 
             switch (pageId) {
                 case 'vendas':
@@ -170,14 +189,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'estoque':
                     renderEstoqueTable();
                     break;
-                case 'gerenciarProdutos': // NOVO
-                    renderGerenciarProdutosTable();
+                case 'gerenciarProdutos': 
+                    populateDatalistForEdit(); 
+                    if (searchEditProductForm) searchEditProductForm.reset();
+                    if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = 'Use a busca acima para encontrar o produto que deseja editar ou excluir.';
                     break;
                 case 'inventario':
-                    // Lógica de Inventário
+                    populateInventarioProducts(); 
                     break;
-                case 'historico': 
-                    renderHistoryTable();
+                case 'registroVendas': 
+                    renderSalesHistoryTable(); // Renderiza sem filtro inicialmente
+                    break;
+                case 'estoqueHistorico': 
+                    renderStockHistoryTable();
                     break;
                 case 'gerenciarUsuarios':
                     if (userTableBody) renderUserTable();
@@ -189,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateNavigation(pageId);
     }
 
+    // ... (updateNavigation, toggleMenu, Authentication Logic permanecem os mesmos) ...
     function updateNavigation(activePageId) {
         navItems.forEach(item => {
             const href = item.getAttribute('href').substring(1);
@@ -201,8 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const toggleMenu = () => sideMenu.classList.toggle('active');
-
-    // --- Authentication Logic ---
 
     function login(username, password) {
         if (users[username] && users[username].password === password) {
@@ -249,15 +272,15 @@ document.addEventListener('DOMContentLoaded', () => {
             adminPageElements.forEach(el => el.style.display = 'none'); 
         }
     }
+    // --- Fim da Lógica de Autenticação/UI ---
 
-    // --- Lógica de Vendas ---
 
+    // --- Lógica de Vendas (Mantida a mesma) ---
     function populateProductsForSale() {
         if (!produtoAddItemSelect) return;
-
         produtoAddItemSelect.innerHTML = '<option value="">Selecione o produto</option>';
         products.forEach(product => {
-            if (product.quantity > 0) { // Só lista produtos em estoque
+            if (product.quantity > 0) { 
                 const option = document.createElement('option');
                 option.value = product.id;
                 option.textContent = `${product.name} (Estoque: ${product.quantity} / R$ ${product.price.toFixed(2)})`;
@@ -268,7 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
              produtoAddItemSelect.innerHTML = '<option value="">Nenhum produto em estoque para venda</option>';
         }
     }
-
     function renderCart() {
         if (!cartTableBody || !grandTotalSpan || !cartCountSpan || !registerSaleBtn) return;
 
@@ -305,42 +327,22 @@ document.addEventListener('DOMContentLoaded', () => {
         registerSaleBtn.disabled = false;
         if (customerNameInput) customerNameInput.disabled = false;
     }
-
-    // Função global para ser chamada pelo botão "Remover" do carrinho
     window.removeItemFromCart = (index) => {
         currentCart.splice(index, 1);
         populateProductsForSale(); 
         renderCart();
         showToast('Item removido do carrinho.', 'info');
     };
-    
-    // Listener para adicionar item ao carrinho
     if (addItemForm) {
         addItemForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
             const productId = produtoAddItemSelect.value;
             const quantity = parseInt(quantidadeAddItemInput.value);
-
-            if (!productId || quantity <= 0) {
-                showToast('Selecione um produto e uma quantidade válida.', 'error');
-                return;
-            }
-
+            if (!productId || quantity <= 0) { showToast('Selecione um produto e uma quantidade válida.', 'error'); return; }
             const product = products.find(p => p.id === productId);
-
-            if (!product) {
-                showToast('Produto não encontrado.', 'error');
-                return;
-            }
-
-            if (quantity > product.quantity) {
-                showToast(`Estoque insuficiente! Disponível: ${product.quantity}`, 'error');
-                return;
-            }
-
+            if (!product) { showToast('Produto não encontrado.', 'error'); return; }
+            if (quantity > product.quantity) { showToast(`Estoque insuficiente! Disponível: ${product.quantity}`, 'error'); return; }
             const cartItemIndex = currentCart.findIndex(item => item.id === productId);
-
             if (cartItemIndex > -1) {
                 const newQuantity = currentCart[cartItemIndex].quantity + quantity;
                 if (newQuantity > product.quantity) {
@@ -349,106 +351,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 currentCart[cartItemIndex].quantity = newQuantity;
             } else {
-                currentCart.push({
-                    id: product.id,
-                    name: product.name,
-                    quantity: quantity,
-                    price: product.price
-                });
+                currentCart.push({ id: product.id, name: product.name, quantity: quantity, price: product.price });
             }
-
-            // Limpa o formulário e atualiza a UI
             produtoAddItemSelect.value = '';
             quantidadeAddItemInput.value = '1';
             renderCart();
             showToast('Item adicionado ao carrinho.', 'success');
         });
     }
-
-    // Listener para registrar a venda (concluir) - ATUALIZADO
     if (registerSaleBtn) {
         registerSaleBtn.addEventListener('click', () => {
-            if (currentCart.length === 0) {
-                showToast('O carrinho está vazio.', 'error');
-                return;
-            }
-
+            if (currentCart.length === 0) { showToast('O carrinho está vazio.', 'error'); return; }
             const customerName = customerNameInput ? customerNameInput.value.trim() : '';
-
-            // Validação do nome do cliente
-            if (!customerName) {
-                showToast('O nome do cliente é obrigatório para registrar a venda.', 'error'); 
-                return;
-            }
-
+            if (!customerName) { showToast('O nome do cliente é obrigatório para registrar a venda.', 'error'); return; }
             const grandTotal = currentCart.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-
-            // 1. Log Transaction - ATUALIZADO com data real
+            const saleTimestamp = new Date().toISOString();
             const transaction = {
-                id: 'venda' + Date.now(),
-                type: 'venda',
-                customerName: customerName,
-                items: currentCart.map(item => ({ 
-                    id: item.id,
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price,
-                    subtotal: item.quantity * item.price
-                })),
-                total: grandTotal,
-                timestamp: new Date().toISOString() // Data atual real
+                id: 'venda' + Date.now(), type: 'venda', customerName: customerName,
+                items: currentCart.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price, subtotal: item.quantity * item.price })),
+                total: grandTotal, timestamp: saleTimestamp
             };
-            salesHistory.push(transaction);
-            saveSalesHistory();
+            salesRegister.push(transaction); saveSalesRegister();
 
-            // 2. Lógica para dar baixa no estoque
             currentCart.forEach(cartItem => {
                 const productIndex = products.findIndex(p => p.id === cartItem.id);
                 if (productIndex !== -1) {
                     products[productIndex].quantity -= cartItem.quantity;
+                    stockHistory.push({
+                        id: 'estoque' + Date.now() + Math.random(), type: 'venda', productName: cartItem.name,
+                        productId: cartItem.id, quantity: -cartItem.quantity, timestamp: saleTimestamp,
+                        details: `Venda registrada para: ${customerName}`
+                    });
                 }
             });
 
-            saveProducts();
-            
-            // 3. Clear cart and UI
+            saveProducts(); saveStockHistory();
             currentCart = [];
-            
             showToast(`Venda para ${customerName} registrada! Total: R$ ${grandTotal.toFixed(2)}`, 'success');
-            
-            // Reset customer name field
             if (customerNameInput) customerNameInput.value = '';
-
-            // Atualiza a lista de produtos e o carrinho
-            populateProductsForSale();
-            renderCart();
-            showPage('home');
+            populateProductsForSale(); renderCart(); showPage('home');
         });
     }
+    // --- Fim da Lógica de Vendas ---
+
 
     // --- Lógica de Histórico ---
+    function renderSalesHistoryTable(filterText = '') { // FUNÇÃO ATUALIZADA
+        if (!registroVendasList) return;
 
-    function renderHistoryTable() {
-        if (!historicoList) return;
+        const lowerCaseFilter = filterText.toLowerCase().trim();
+        registroVendasList.innerHTML = '';
         
-        historicoList.innerHTML = '';
-        
-        if (salesHistory.length === 0) {
-            historicoList.innerHTML = `<p style="text-align:center; color: var(--text-light);">Nenhuma transação registrada.</p>`;
+        const filteredSales = salesRegister.slice().reverse().filter(transaction => {
+            if (lowerCaseFilter === '') return true;
+
+            // Busca por Nome do Cliente
+            if (transaction.customerName && transaction.customerName.toLowerCase().includes(lowerCaseFilter)) {
+                return true;
+            }
+
+            // Busca por Nome de Item Vendido
+            const itemMatch = transaction.items.some(item => 
+                item.name.toLowerCase().includes(lowerCaseFilter)
+            );
+            return itemMatch;
+        });
+
+        if (filteredSales.length === 0) {
+            registroVendasList.innerHTML = `<p style="text-align:center; color: var(--text-light);">Nenhuma venda encontrada com o filtro: "${filterText}"</p>`;
             return;
         }
-
-        // Simplesmente lista as transações em ordem decrescente de data
-        salesHistory.slice().reverse().forEach(transaction => {
-            // Formata a data para a realidade local
+        
+        filteredSales.forEach(transaction => {
             const date = new Date(transaction.timestamp).toLocaleString('pt-BR');
             let itemsText = transaction.items.map(item => `${item.name} (${item.quantity}x)`).join(', ');
-            
             const listItem = document.createElement('li');
             listItem.className = 'history-list-item card'; 
             listItem.innerHTML = `
                 <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
-                    <span class="type-venda btn small-btn">VENDA</span>
+                    <span class="type-venda btn small-btn"><i class="fas fa-receipt"></i> VENDA</span>
                     <span class="history-date" style="font-size: 0.9em; color: var(--text-light);">${date}</span>
                 </div>
                 <div class="history-details">
@@ -457,12 +438,101 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Total:</strong> <span style="color: var(--primary-color); font-weight: bold;">R$ ${transaction.total.toFixed(2)}</span></p>
                 </div>
             `;
-            historicoList.appendChild(listItem);
+            registroVendasList.appendChild(listItem);
+        });
+    }
+    
+    // Função de filtro para Registro de Vendas
+    const filterSalesHistory = () => {
+        if (searchRegistroVendasInput) {
+            renderSalesHistoryTable(searchRegistroVendasInput.value);
+        }
+    };
+
+    if (searchRegistroVendasInput) {
+        searchRegistroVendasInput.addEventListener('keyup', filterSalesHistory);
+    }
+
+    
+    function renderStockHistoryTable() {
+        if (!estoqueHistoricoList) return;
+
+        const selectedType = filterEstoqueHistoricoSelect ? filterEstoqueHistoricoSelect.value : 'all';
+        estoqueHistoricoList.innerHTML = '';
+
+        if (stockHistory.length === 0) {
+            estoqueHistoricoList.innerHTML = `<p style="text-align:center; color: var(--text-light);">Nenhuma movimentação de estoque registrada.</p>`;
+            return;
+        }
+
+        const filteredHistory = stockHistory.slice().reverse().filter(item => 
+            selectedType === 'all' || item.type === selectedType
+        );
+
+        if (filteredHistory.length === 0) {
+            estoqueHistoricoList.innerHTML = `<p style="text-align:center; color: var(--text-light);">Nenhuma movimentação do tipo "${selectedType.toUpperCase()}" encontrada.</p>`;
+            return;
+        }
+
+        filteredHistory.forEach(item => {
+            const date = new Date(item.timestamp).toLocaleString('pt-BR');
+            const isPositive = item.quantity > 0;
+            const absQuantity = Math.abs(item.quantity);
+            
+            let typeText = '';
+            let typeClass = '';
+            let icon = '';
+
+            switch(item.type) {
+                case 'entrada':
+                    typeText = 'ENTRADA';
+                    typeClass = 'btn-success';
+                    icon = '<i class="fas fa-arrow-up"></i>';
+                    break;
+                case 'saida':
+                    typeText = 'SAÍDA (Perda/Dev)';
+                    typeClass = 'btn-danger';
+                    icon = '<i class="fas fa-arrow-down"></i>';
+                    break;
+                case 'venda':
+                    typeText = 'SAÍDA (Venda)';
+                    typeClass = 'btn-warning';
+                    icon = '<i class="fas fa-shopping-cart"></i>';
+                    break;
+                case 'inventario':
+                    typeText = `INVENTÁRIO (${isPositive ? 'AUMENTO' : 'REDUÇÃO'})`;
+                    typeClass = isPositive ? 'btn-info' : 'btn-danger';
+                    icon = '<i class="fas fa-check-double"></i>';
+                    break;
+                default:
+                    typeText = 'MOVIMENTAÇÃO';
+                    typeClass = 'btn-info';
+                    icon = '<i class="fas fa-exchange-alt"></i>';
+            }
+            
+            const listItem = document.createElement('li');
+            listItem.className = 'history-list-item card'; 
+            listItem.innerHTML = `
+                <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
+                    <span class="type-badge btn small-btn ${typeClass}" style="color: black; font-weight: bold; background-color: ${typeClass === 'btn-success' ? '#8bc34a' : typeClass === 'btn-danger' ? '#f44336' : typeClass === 'btn-warning' ? '#ffc107' : '#2196f3'};">${icon} ${typeText}</span>
+                    <span class="history-date" style="font-size: 0.9em; color: var(--text-light);">${date}</span>
+                </div>
+                <div class="history-details">
+                    <p style="margin-top: 5px;"><strong>Produto:</strong> ${item.productName}</p>
+                    <p><strong>Quantidade:</strong> <span style="font-weight: bold; color: ${isPositive ? 'var(--primary-color)' : 'var(--error-color)'}">${isPositive ? '+' : '-'}${absQuantity}</span></p>
+                    <p style="font-size: 0.8em; color: var(--text-light);"><strong>Detalhes:</strong> ${item.details}</p>
+                </div>
+            `;
+            estoqueHistoricoList.appendChild(listItem);
         });
     }
 
-    // --- Lógica de Estoque (Visualização Simples com Movimentação) ---
-    
+    if (filterEstoqueHistoricoSelect) {
+        filterEstoqueHistoricoSelect.addEventListener('change', renderStockHistoryTable);
+    }
+    // --- Fim da Lógica de Histórico ---
+
+    // --- Lógica de Estoque (Visualização Simples) ---
     function renderEstoqueTable(filterText = '') {
         if (!estoqueTableBody) return;
         
@@ -477,52 +547,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${product.name}</td>
                 <td>${product.quantity}</td>
                 <td>R$ ${product.price.toFixed(2)}</td>
-                <td>
-                    <button class="btn small-btn edit-btn" data-id="${product.id}" onclick="handleEdit('${product.id}')"><i class="fas fa-edit"></i></button>
-                    <button class="btn small-btn danger-btn" data-id="${product.id}" onclick="handleDelete('${product.id}', '${product.name}', ${product.quantity})"><i class="fas fa-trash"></i></button>
-                </td>
             `;
             estoqueTableBody.appendChild(row);
         });
 
         if (estoqueTableBody.children.length === 0) {
             const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="4" style="text-align:center; color: var(--text-light);">Nenhum produto encontrado.</td>`;
+            row.innerHTML = `<td colspan="3" style="text-align:center; color: var(--text-light);">Nenhum produto encontrado.</td>`;
             estoqueTableBody.appendChild(row);
         }
     }
     
-    // --- Lógica de Gerenciamento de Produtos (Listagem Completa) ---
-    function renderGerenciarProdutosTable(filterText = '') {
-        if (!gerenciarProdutosTableBody) return;
-        
-        gerenciarProdutosTableBody.innerHTML = '';
-        const lowerCaseFilter = filterText.toLowerCase();
-
-        products.filter(product => 
-            product.name.toLowerCase().includes(lowerCaseFilter)
-        ).forEach(product => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${product.name}</td>
-                <td>${product.quantity}</td>
-                <td>R$ ${product.price.toFixed(2)}</td>
-                <td>
-                    <button class="btn small-btn edit-btn" data-id="${product.id}" onclick="handleEditAll('${product.id}')"><i class="fas fa-edit"></i> Editar Tudo</button>
-                    <button class="btn small-btn danger-btn" data-id="${product.id}" onclick="handleDelete('${product.id}', '${product.name}', ${product.quantity})"><i class="fas fa-trash"></i> Excluir</button>
-                </td>
-            `;
-            gerenciarProdutosTableBody.appendChild(row);
-        });
-
-        if (gerenciarProdutosTableBody.children.length === 0) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="4" style="text-align:center; color: var(--text-light);">Nenhum produto encontrado.</td>`;
-            gerenciarProdutosTableBody.appendChild(row);
-        }
-    }
-    
-    // Listeners de Busca (Estoque)
     const filterEstoqueTable = () => {
         if (searchEstoqueInput) {
             renderEstoqueTable(searchEstoqueInput.value);
@@ -531,37 +566,57 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchEstoqueInput) {
         searchEstoqueInput.addEventListener('keyup', filterEstoqueTable);
     }
-    if (searchEstoqueBtn) {
-        searchEstoqueBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            filterEstoqueTable();
-        });
-    }
+
+
+    // --- Lógica de Gerenciamento de Produtos (Search-based Edition) ---
     
-    // Listeners de Busca (Gerenciar Produtos)
-    const filterGerenciarProdutosTable = () => {
-        if (searchGerenciarInput) {
-            renderGerenciarProdutosTable(searchGerenciarInput.value);
-        }
-    };
-    if (searchGerenciarInput) {
-        searchGerenciarInput.addEventListener('keyup', filterGerenciarProdutosTable);
-    }
-    if (searchGerenciarBtn) {
-        searchGerenciarBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            filterGerenciarProdutosTable();
+    function populateDatalistForEdit() {
+        if (!productListForEdit) return;
+
+        productListForEdit.innerHTML = '';
+        products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = `${product.name} (Qtd: ${product.quantity})`;
+            // Não usamos data-attribute aqui, apenas o nome para buscar
+            productListForEdit.appendChild(option);
         });
     }
 
-    // --- EDIÇÃO (EXPOSTA GLOBALMENTE) ---
+    function handleProductSearchForEdit(searchText) {
+        if (!searchText) {
+            if (edicaoFormContainer) edicaoFormContainer.classList.add('hidden');
+            if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = 'Digite e selecione o nome exato do produto na lista para carregar os dados.';
+            return;
+        }
+
+        // Tenta encontrar o produto pelo nome exato (removendo a info de Qtd)
+        const productName = searchText.split(' (Qtd:')[0].trim(); 
+        const product = products.find(p => p.name.trim() === productName);
+
+        if (product) {
+            handleEditAll(product.id);
+            if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = `Dados de "${product.name}" carregados para edição.`;
+        } else {
+            if (edicaoFormContainer) edicaoFormContainer.classList.add('hidden');
+            if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = `Produto "${productName}" não encontrado. Tente digitar o nome exato.`;
+        }
+    }
     
-    // Novo handler que exibe o formulário de edição com todos os campos, incluindo a Qtd.
+    if (searchEditProductForm) {
+        searchEditProductForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleProductSearchForEdit(searchEditProductInput.value.trim());
+        });
+    }
+
+    // --- EDIÇÃO DE PRODUTO (Chamada pela Busca) ---
+    
+    // Handler que exibe o formulário de edição com todos os campos.
     window.handleEditAll = (id) => {
         const product = products.find(p => p.id === id);
         if (!product || !edicaoFormContainer) return;
         
-        // Adiciona um campo temporário para edição da quantidade no DOM do formulário de edição
+        // Adiciona ou garante a visibilidade do campo de Quantidade
         let qtyField = document.getElementById('editProductQuantityContainer');
         if (!qtyField) {
             qtyField = document.createElement('div');
@@ -570,10 +625,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label for="editProductQuantity">Quantidade em Estoque:</label>
                 <input type="number" id="editProductQuantity" min="0" required>
             `;
-            // Insere o novo campo antes do campo de Preço
             const priceLabel = document.querySelector('#edicaoForm label[for="editProductPrice"]');
             priceLabel.parentNode.insertBefore(qtyField, priceLabel);
         }
+        
+        qtyField.classList.remove('hidden'); 
+        
         document.getElementById('editProductQuantity').value = product.quantity;
 
 
@@ -587,17 +644,16 @@ document.addEventListener('DOMContentLoaded', () => {
         edicaoFormContainer.classList.remove('hidden');
     };
     
-    // Função existente, mas agora simplificada para abrir o formulário SEM o campo de quantidade (se for chamada do Estoque)
-    window.handleEdit = (id) => {
-        window.handleEditAll(id); // Usa a função completa
-        
-        // Remove temporariamente o campo de quantidade para a edição rápida do estoque
-        const qtyField = document.getElementById('editProductQuantityContainer');
-        if (qtyField) {
-            qtyField.classList.add('hidden');
-        }
-    };
-
+    // Listener para o botão de Exclusão (movido para a tela de edição)
+    if (btnDeleteProduct) {
+        btnDeleteProduct.addEventListener('click', () => {
+             const id = editProductId.value;
+             const product = products.find(p => p.id === id);
+             if(product) {
+                 handleDelete(product.id, product.name, product.quantity);
+             }
+        });
+    }
 
     if (edicaoForm) {
         edicaoForm.addEventListener('submit', (e) => {
@@ -606,29 +662,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const productIndex = products.findIndex(p => p.id === id);
 
             if (productIndex !== -1) {
-                products[productIndex].name = editProductNameInput.value;
-                products[productIndex].price = parseFloat(editProductPriceInput.value);
-                products[productIndex].weightGrams = parseInt(editProductWeightInput.value) || 0;
-                
-                // Verifica e atualiza a quantidade (se o campo estiver visível)
-                const qtyInput = document.getElementById('editProductQuantity');
-                const qtyContainer = document.getElementById('editProductQuantityContainer');
+                const product = products[productIndex];
+                const oldQuantity = product.quantity;
+                const newQuantity = parseInt(document.getElementById('editProductQuantity').value);
 
-                if (qtyInput && !qtyContainer.classList.contains('hidden')) {
-                     products[productIndex].quantity = parseInt(qtyInput.value);
-                }
+
+                product.name = editProductNameInput.value;
+                product.price = parseFloat(editProductPriceInput.value);
+                product.weightGrams = parseInt(editProductWeightInput.value) || 0;
                 
-                // Limpa o formulário e re-renderiza
+                if (newQuantity !== oldQuantity) {
+                    const diff = newQuantity - oldQuantity;
+                    product.quantity = newQuantity;
+
+                    stockHistory.push({
+                        id: 'estoque' + Date.now(), type: 'inventario', productName: product.name,
+                        productId: product.id, quantity: diff, 
+                        timestamp: new Date().toISOString(),
+                        details: `Ajuste de inventário por Edição de Produto (Qtd. Anterior: ${oldQuantity}, Nova Qtd.: ${newQuantity})`
+                    });
+                    saveStockHistory();
+                }
+
+                
                 saveProducts();
-                showToast(`Produto ${products[productIndex].name} atualizado com sucesso!`, 'success');
+                showToast(`Produto ${product.name} atualizado com sucesso!`, 'success');
                 edicaoFormContainer.classList.add('hidden');
                 
-                // Verifica qual página está ativa para renderizar a tabela correta
-                if (document.getElementById('estoque-page').classList.contains('active')) {
-                    renderEstoqueTable();
-                } else if (document.getElementById('gerenciarProdutos-page').classList.contains('active')) {
-                    renderGerenciarProdutosTable();
-                }
+                // Limpa o estado da busca e o formulário
+                if (searchEditProductForm) searchEditProductForm.reset();
+                if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = 'Edição salva. Use a busca acima para editar outro produto.';
+
+                // Garante que o estoque seja atualizado visualmente
+                renderEstoqueTable(); 
             }
         });
     }
@@ -636,11 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editCancelBtn) {
         editCancelBtn.addEventListener('click', () => {
             edicaoFormContainer.classList.add('hidden');
-            // Garante que o campo de quantidade, se removido, não apareça na próxima edição de "Estoque"
-            const qtyField = document.getElementById('editProductQuantityContainer');
-            if (qtyField) {
-                 qtyField.classList.remove('hidden'); // Volta ao normal, pois a função handleEditAll lida com o estado.
-            }
+            if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = 'Edição cancelada. Use a busca acima para encontrar o produto que deseja editar.';
         });
     }
 
@@ -655,54 +717,108 @@ document.addEventListener('DOMContentLoaded', () => {
             products = products.filter(p => p.id !== id);
             saveProducts();
             
-            // Verifica qual página está ativa para renderizar a tabela correta
-            if (document.getElementById('estoque-page').classList.contains('active')) {
-                renderEstoqueTable();
-            } else if (document.getElementById('gerenciarProdutos-page').classList.contains('active')) {
-                renderGerenciarProdutosTable();
-            }
-            
             showToast(`Produto "${name}" excluído com sucesso.`, 'success');
+            
+            // Re-popula a datalist e esconde o formulário de edição/movimentação
+            populateDatalistForEdit();
+            populateDatalistForMov();
+            edicaoFormContainer.classList.add('hidden');
+            if (gerenciarStatusMessage) gerenciarStatusMessage.textContent = 'Produto excluído. Use a busca acima para editar outro produto.';
+            renderEstoqueTable();
         }
     };
 
-    // --- MOVIMENTAÇÃO (ENTRADA/SAÍDA) ---
-    const populateMovimentacaoProducts = () => {
-        if (!movProduto) return;
-        movProduto.innerHTML = '<option value="">Selecione um produto</option>';
+    // --- MOVIMENTAÇÃO (ENTRADA/SAÍDA - Search-driven) ---
+    
+    // Função auxiliar para popular produtos no Inventário (mantida)
+    const populateInventarioProducts = () => {
+        if (!inventarioProdutoSelect) return;
+        inventarioProdutoSelect.innerHTML = '<option value="">Selecione o produto</option>';
         products.forEach(product => {
             const option = document.createElement('option');
             option.value = product.id;
-            option.textContent = `${product.name} (Qtd: ${product.quantity})`;
-            movProduto.appendChild(option);
+            option.textContent = `${product.name} (Estoque Atual: ${product.quantity})`;
+            inventarioProdutoSelect.appendChild(option);
         });
     };
 
+    // Popula a datalist de produtos para a Movimentação
+    const populateDatalistForMov = () => {
+        if (!productListForMov) return;
+
+        productListForMov.innerHTML = '';
+        products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = `${product.name} (Qtd: ${product.quantity})`;
+            productListForMov.appendChild(option);
+        });
+    };
+
+
     const showMovimentacaoForm = (type) => {
         if (!movimentacaoFormContainer) return;
+        
         movType.value = type;
         movTitle.textContent = type === 'entrada' ? 'Registrar Entrada de Estoque' : 'Registrar Saída/Perda';
-        movQuantidade.value = 1;
-        populateMovimentacaoProducts();
         
         if (edicaoFormContainer) edicaoFormContainer.classList.add('hidden');
         movimentacaoFormContainer.classList.remove('hidden');
+        
+        // Reseta o estado
+        movSearchContainer.classList.remove('hidden');
+        movSearchInput.value = '';
+        movProductDetails.classList.add('hidden');
+        movProductId.value = '';
+        movQuantidade.value = 1;
+
+        populateDatalistForMov();
     };
 
     if (btnEntrada) btnEntrada.addEventListener('click', () => showMovimentacaoForm('entrada'));
     if (btnSaida) btnSaida.addEventListener('click', () => showMovimentacaoForm('saida'));
     if (movCancelBtn) movCancelBtn.addEventListener('click', () => movimentacaoFormContainer.classList.add('hidden'));
+    
+    // Função de busca para movimentação (chamada pelo botão "Selecionar")
+    if (searchMovProductBtn) {
+        searchMovProductBtn.addEventListener('click', () => {
+            const searchText = movSearchInput.value.trim();
+            if (!searchText) {
+                showToast('Digite o nome do produto para buscar.', 'error');
+                return;
+            }
+            
+            const productName = searchText.split(' (Qtd:')[0].trim(); 
+            const product = products.find(p => p.name.trim() === productName);
+            
+            if (product) {
+                movSearchContainer.classList.add('hidden');
+                
+                movProductId.value = product.id;
+                movProductNameDisplay.textContent = product.name;
+                movProductQtyDisplay.textContent = product.quantity;
+                
+                // Define o max para Saída
+                movQuantidade.max = movType.value === 'saida' ? product.quantity : ''; 
+                // Zera o campo Qtd. se o produto for novo ou o tipo for Entrada
+                movQuantidade.value = 1; 
+                
+                movProductDetails.classList.remove('hidden');
+            } else {
+                showToast(`Produto "${productName}" não encontrado.`, 'error');
+            }
+        });
+    }
 
     if (movimentacaoForm) {
         movimentacaoForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
             const type = movType.value;
-            const id = movProduto.value;
+            const id = movProductId.value;
             const quantity = parseInt(movQuantidade.value);
 
             if (!id || quantity <= 0) {
-                showToast('Selecione um produto e uma quantidade válida.', 'error');
+                showToast('O produto não foi selecionado corretamente ou a quantidade é inválida.', 'error');
                 return;
             }
             
@@ -713,12 +829,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast(`Erro: Não é possível dar saída em ${quantity} unidades. Estoque atual: ${product.quantity}.`, 'error');
                 return;
             }
-
+            
+            const movTimestamp = new Date().toISOString();
+            
             if (type === 'entrada') {
                 product.quantity += quantity;
             } else { // saida
                 product.quantity -= quantity;
             }
+            
+            stockHistory.push({
+                id: 'estoque' + Date.now(), type: type, productName: product.name,
+                productId: product.id, quantity: type === 'entrada' ? quantity : -quantity,
+                timestamp: movTimestamp, details: `Movimentação manual registrada por: ${currentUser.username}`
+            });
+            saveStockHistory();
+
 
             saveProducts();
             showToast(`${quantity} unidades de ${product.name} registradas como ${type.toUpperCase()}. Novo estoque: ${product.quantity}`, 'success');
@@ -726,8 +852,54 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEstoqueTable(); 
         });
     }
+    // --- Fim da Lógica de Movimentação ---
 
-    // --- ADIÇÃO DE PRODUTO (RESTRITO A PÁGINA #addProduto) ---
+    // --- Lógica de Inventário ---
+    if (inventarioForm) {
+        inventarioForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const productId = document.getElementById('inventarioProduto').value;
+            const finalContagem = parseInt(document.getElementById('inventarioContagem').value);
+            
+            if (!productId || finalContagem === undefined || finalContagem < 0) {
+                 showToast('Selecione um produto e informe uma contagem válida.', 'error');
+                 return;
+            }
+
+            const productIndex = products.findIndex(p => p.id === productId);
+            if (productIndex === -1) {
+                 showToast('Produto não encontrado.', 'error');
+                 return;
+            }
+
+            const product = products[productIndex];
+            const oldQuantity = product.quantity;
+            const diff = finalContagem - oldQuantity; 
+
+            if (diff === 0) {
+                 showToast(`Contagem do produto ${product.name} já está correta.`, 'info');
+                 return;
+            }
+
+            product.quantity = finalContagem;
+            saveProducts();
+
+            stockHistory.push({
+                id: 'estoque' + Date.now(), type: 'inventario', productName: product.name,
+                productId: product.id, quantity: diff, 
+                timestamp: new Date().toISOString(),
+                details: `Ajuste de inventário por ${currentUser.username} (Qtd. Anterior: ${oldQuantity}, Nova Qtd.: ${finalContagem})`
+            });
+            saveStockHistory();
+            
+            showToast(`Ajuste de inventário de ${product.name} registrado. Diferença: ${diff}.`, 'success');
+            inventarioForm.reset();
+            populateInventarioProducts(); 
+        });
+    }
+
+    // --- ADIÇÃO DE PRODUTO ---
     if (addProdutoForm) {
         addProdutoForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -744,23 +916,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             products.push(newProduct);
             saveProducts();
+            
+            if (newProduct.quantity > 0) {
+                 stockHistory.push({
+                    id: 'estoque' + Date.now() + Math.random(), type: 'entrada', productName: newProduct.name,
+                    productId: newId, quantity: newProduct.quantity, timestamp: new Date().toISOString(),
+                    details: 'Estoque Inicial no Cadastro do Produto'
+                });
+                saveStockHistory();
+            }
+
             showToast(`Produto '${newProduct.name}' cadastrado com sucesso!`, 'success');
             addProdutoForm.reset();
             showPage('estoque');
         });
     }
 
-    // --- Lógica de Gerenciamento de Usuários (Master Only) ---
-    
+    // --- Lógica de Gerenciamento de Usuários (Mantida a mesma) ---
     function renderUserTable() {
         if (!userTableBody) return;
 
         userTableBody.innerHTML = '';
         
-        const userList = Object.keys(users).map(username => ({ 
-            username: username, 
-            role: users[username].role 
-        }));
+        const userList = Object.keys(users).map(username => ({ username: username, role: users[username].role }));
 
         if (userList.length === 0) {
             userTableBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-light);">Nenhum usuário cadastrado.</td></tr>`;
@@ -844,13 +1022,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
     // --- General Event Listeners and Initialization ---
 
-    // UI Listeners
     if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
     if (closeMenu) closeMenu.addEventListener('click', toggleMenu);
     
-    // SPA Navigation Listeners
     const navigate = (e) => {
         e.preventDefault();
         const href = e.currentTarget.getAttribute('href');
@@ -867,7 +1044,6 @@ document.addEventListener('DOMContentLoaded', () => {
     sideMenuItems.forEach(item => item.addEventListener('click', navigate));
     navItems.forEach(item => item.addEventListener('click', navigate));
 
-    // Authentication Listeners
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -884,7 +1060,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (switchToLogin) switchToLogin.addEventListener('click', (e) => { e.preventDefault(); showPage('login'); });
     if (logoutBtn) logoutBtn.addEventListener('click', (e) => { e.preventDefault(); logout(); });
 
-    // Handle initial load and browser back/forward
     const handleInitialLoad = () => {
         const hash = window.location.hash.substring(1);
         const initialPage = hash || (currentUser ? 'home' : 'login');
@@ -906,7 +1081,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.addEventListener('hashchange', handleInitialLoad);
 
-    // Initial load
     const storedUser = localStorage.getItem('loggedInUser');
     if (storedUser) {
         currentUser = JSON.parse(storedUser);
